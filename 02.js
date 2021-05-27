@@ -52,13 +52,11 @@ const mongoose = require('mongoose');
 // 2. 根据userId查找此id下的文章
 // 3. 聚合此文章下的评论
 //登录返回promise,reslove用户文档
-const login = function (userName, password) {
+const login = function (userModel, userName, password) {
   const rtn = new Promise((reslove, reject) => {
     userModel.find({ userName: userName }, (err, docs) => {
       if (err) reject(err)
       if (docs[0].password == password) {
-        console.log('登录验证成功');
-        // return docs[0]
         reslove(docs[0])
       } else {
         reject(new Error('密码错误'))
@@ -106,7 +104,7 @@ const getDocsByIds = async function (ids) {
 // 使用async、await优化书写方式
 const run = async function () {
   try {
-    const isLogin = await login('刘备', '456789')
+    const isLogin = await login(userModel, '刘备', '456789')
     var articles = await findArticles(isLogin._id)
     var myart = JSON.parse(JSON.stringify(articles))
     for (key in myart) {

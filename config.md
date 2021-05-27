@@ -28,3 +28,61 @@ const modelName = mongoose.model(
   [collectionName],
   [skipInit])
 ~~~
+
+## 目录结构
+   1. module
+      1. db.js
+      2. user.ja
+   2. app.js
+
+### db.js
+~~~js
+const mongoose = require('mongoose')
+
+mongoose.connect('mongodb://localhost/eg', { 
+  useNewUrlParser: true, 
+  useUnifiedTopology: true 
+  },err => {
+  if (!err)
+    console.log('连接数据库成功...');
+})
+module.exports = mongoose
+~~~
+
+### users.js
+
+~~~js
+const mongoose = require('./db.js')
+
+const userSchema = new mongoose.Schema({
+  userName: {
+    type: String,
+    // 预置验证器
+    maxLength: [6, '名字太长，3-6个汉字'],
+    minLength: 2,
+    required: true
+  },
+  password: {
+    type: String,
+    minLength: [6, '密码不能小于六位'],
+    required: true
+  },
+  job: {
+    type: String,
+    required: false
+  },
+  briefIntroduction: {
+    type: String,
+    maxLength: [100, '个人简介字数应在100字内'],
+    required: false
+  }
+})
+const User = mongoose.model('User', userSchema)
+module.exports = User
+~~~
+
+### app.js
+~~~js
+const userModel = require('./module/users.js')
+
+~~~
