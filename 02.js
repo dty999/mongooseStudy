@@ -69,10 +69,10 @@ const login = function (userName, password) {
 }
 
 // 根据用户文档查询用户的文章，返回promise，reslove查询到的文章文档
-const findArticle = function (user) {
+const findArticles = function (id) {
   const rtn = new Promise((reslove, reject) => {
     articleModel.find({
-      authId: user._id,
+      authId: id,
     }, (err, docs) => {
       if (err)
         reject(err)
@@ -81,12 +81,40 @@ const findArticle = function (user) {
   })
   return rtn
 }
+// 返回Promise
+const findById = function (model, id) {
+  const rtn = new Promise((reslove, reject) => {
+    model.find({
+      _id: id,
+    }, (err, docs) => {
+      if (err)
+        reject(err)
+      reslove(docs[0])
+    })
+  })
+  return rtn
+}
+// 根据id数组获取每一个id对应的文档，返回数组
+const getDocsByIds = async function (ids) {
+  let docs = []
+  for (index in ids) {
+    let doc = await findById(commentModel, ids[index])
+    docs.push(doc)
+  }
+  return docs
+}
 // 使用async、await优化书写方式
-let run = async function () {
+const run = async function () {
   try {
     const isLogin = await login('刘备', '456789')
-    const article = await findArticle(isLogin._id)
-    console.log(article);
+    var articles = await findArticles(isLogin._id)
+    var myart = JSON.parse(JSON.stringify(articles))
+    for (key in myart) {
+      let comments = myart[key].comments
+      let docs = await getDocsByIds(comments)
+      myart[key].comments = docs
+    }
+    console.log(JSON.stringify(myart));
   } catch (error) {
     console.log('error');
     return
